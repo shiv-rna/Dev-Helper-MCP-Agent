@@ -1,0 +1,7 @@
+For npx installation:
+# Replace 18.x with desired version (like 20.x)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash -
+
+# Install Node.js (includes npm and npx)
+sudo apt-get install -y nodejs
+
