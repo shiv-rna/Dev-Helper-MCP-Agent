@@ -6,7 +6,7 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "python.defaultInterpreterPath": "./src/advanced-agent/.venv/bin/python"
       },
       "extensions": [
         "ms-python.python",
@@ -14,16 +14,23 @@
       ]
     }
   },
+  "containerEnv": {
+    "WAYLAND_DISPLAY": "",
+    "DISPLAY": "",
+    "XDG_SESSION_TYPE": ""
+  },
+  "runArgs": [
+    "--env", "WAYLAND_DISPLAY=",
+    "--env", "DISPLAY=",
+    "--env", "XDG_SESSION_TYPE="
+  ],
   "forwardPorts": [8888, 8501, 7860],
   "portsAttributes": {
     "8888": {
       "label": "Jupyter",
       "onAutoForward": "openBrowser"
-    },
-    "8501": {
-      "label": "Streamlit",
-      "onAutoForward": "notify"
     }
   },
+  "postCreateCommand": "bash -c 'cd src/advanced-agent && [ ! -d .venv ] && uv venv .venv; if [ -f requirements.txt ]; then uv pip install -r requirements.txt; elif [ -f pyproject.toml ]; then uv pip install -e .; else echo \"No requirements file found - skipping package installation\"; fi'",
   "remoteUser": "vscode"
 }

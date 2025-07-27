@@ -6,6 +6,7 @@ from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import asyncio
 import os
+import json
 
 load_dotenv()
 
@@ -54,6 +55,12 @@ async def main():
 
                     ai_message = agent_response["messages"][-1].content
                     print("\nAgent:", ai_message)
+                    
+                    # Save message history after both user and agent messages
+                    messages.append({"role": "assistant", "content": ai_message})
+                    os.makedirs("data", exist_ok=True)
+                    with open("data/message_history.json", "w") as f:
+                        json.dump(messages, f, indent=2)
                 except Exception as e:
                     print("Error:", e)
 
