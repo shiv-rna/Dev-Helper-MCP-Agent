@@ -59,7 +59,7 @@ Before creating the PR, verify:
 2. **Merge**: Once approved, merge to main branch
 3. **Cleanup**: Delete feature branch after merge
 4. **Release**: Create GitHub release for v1.1.0
-5. **Phase 1.2**: Begin work on Google Search Integration
+5. **Phase 1.2**: Begin work on Serper Integration
 
 ## 🔗 Useful Links
 

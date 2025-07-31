@@ -209,7 +209,7 @@ def main():
         print("  • Category-specific templates provide better results")
         print("  • Comprehensive error handling improves reliability")
         print("  • Structured logging enables better debugging")
-        print("\n  The system is now ready for Phase 1.2 (Google Search Integration)")
+        print("\n  The system is now ready for Phase 1.2 (Serper Integration)")
         
     except Exception as e:
         print(f"\n❌ Demonstration failed: {e}")

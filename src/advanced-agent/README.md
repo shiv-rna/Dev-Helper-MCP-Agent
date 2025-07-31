@@ -228,9 +228,9 @@ Available commands:
 
 Phase 1.1 is designed to be compatible with future phases:
 
-### Phase 1.2: Google Search Integration
-- The query builder is ready for Google Custom Search API integration
-- Configuration settings already include Google API settings
+### Phase 1.2: Serper Integration
+- The query builder is ready for Serper API integration
+- Configuration settings already include Serper API settings
 - Error handling supports multiple search providers
 
 ### Phase 2: Enhanced Tool Discovery
@@ -339,4 +339,4 @@ This project is part of the Developer Tools Agent implementation.
 ---
 
 **Phase 1.1 Status**: ✅ Complete  
-**Next Phase**: Phase 1.2 - Google Search Integration
+**Next Phase**: Phase 1.2 - Serper Integration
