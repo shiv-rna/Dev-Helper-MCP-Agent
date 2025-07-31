@@ -18,11 +18,10 @@ load_dotenv()
 class SearchSettings:
     """Settings related to search functionality."""
     firecrawl_api_key: str
-    google_api_key: Optional[str] = None
-    google_engine_id: Optional[str] = None
+    serper_api_key: Optional[str] = None
     max_search_results: int = 5
     search_timeout: int = 30
-    enable_google_search: bool = False
+    enable_serper_fallback: bool = False
 
 
 @dataclass
@@ -62,11 +61,10 @@ class Settings:
         
         self.search = SearchSettings(
             firecrawl_api_key=self._get_required_env("FIRECRAWL_API_KEY"),
-            google_api_key=os.getenv("GOOGLE_CUSTOM_SEARCH_API_KEY"),
-            google_engine_id=os.getenv("GOOGLE_CUSTOM_SEARCH_ENGINE_ID"),
+            serper_api_key=os.getenv("SERPER_API_KEY"),
             max_search_results=int(os.getenv("MAX_SEARCH_RESULTS", "5")),
             search_timeout=int(os.getenv("SEARCH_TIMEOUT", "30")),
-            enable_google_search=bool(os.getenv("ENABLE_GOOGLE_SEARCH", "false").lower() == "true")
+            enable_serper_fallback=bool(os.getenv("ENABLE_SERPER_FALLBACK", "false").lower() == "true")
         )
         
         self.llm = LLMSettings(
@@ -122,17 +120,16 @@ class Settings:
         if missing_vars:
             raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
     
-    def is_google_search_enabled(self) -> bool:
+    def is_serper_fallback_enabled(self) -> bool:
         """
-        Check if Google search is enabled and properly configured.
+        Check if Serper fallback is enabled and properly configured.
         
         Returns:
-            True if Google search is enabled and configured, False otherwise
+            True if Serper fallback is enabled and configured, False otherwise
         """
         return (
-            self.search.enable_google_search and
-            self.search.google_api_key is not None and
-            self.search.google_engine_id is not None
+            self.search.enable_serper_fallback and
+            self.search.serper_api_key is not None
         )
     
     def is_caching_enabled(self) -> bool:
@@ -153,11 +150,10 @@ class Settings:
         """
         return {
             "firecrawl_api_key": self.search.firecrawl_api_key,
-            "google_api_key": self.search.google_api_key,
-            "google_engine_id": self.search.google_engine_id,
+            "serper_api_key": self.search.serper_api_key,
             "max_search_results": self.search.max_search_results,
             "search_timeout": self.search.search_timeout,
-            "enable_google_search": self.search.enable_google_search
+            "enable_serper_fallback": self.search.enable_serper_fallback
         }
     
     def get_llm_config(self) -> dict:
