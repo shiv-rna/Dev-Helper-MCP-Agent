@@ -1,0 +1,1 @@
+# Search module for dynamic query formation and search strategies 
