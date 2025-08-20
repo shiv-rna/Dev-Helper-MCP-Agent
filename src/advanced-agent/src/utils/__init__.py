@@ -1,1 +1,5 @@
-# Utilities module for error handling, logging, and other helper functions 
+# Utils module
+
+from .query_builder import QueryBuilder
+
+__all__ = ["QueryBuilder"] 

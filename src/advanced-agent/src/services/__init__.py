@@ -6,5 +6,6 @@ services used by the application.
 """
 
 from .firecrawl import FirecrawlService
+from .serper_search import SerperService
 
-__all__ = ["FirecrawlService"] 
+__all__ = ["FirecrawlService", "SerperService"] 

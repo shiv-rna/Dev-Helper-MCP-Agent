@@ -13,7 +13,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from ..models import ResearchState, CompanyInfo, CompanyAnalysis
 from ..services import FirecrawlService
 from ..prompts import DeveloperToolsPrompts
-from ..search.query_builder import QueryBuilder
+from ..utils import QueryBuilder
+from ..search import HybridSearchStrategy
 from ..config.settings import settings
 from ..utils.error_handler import handle_llm_errors, LLMError, ErrorHandler
 from ..utils.logger import logger
@@ -33,6 +34,7 @@ class Workflow:
     def __init__(self):
         """Initialize the workflow with enhanced components."""
         self.firecrawl = FirecrawlService()
+        self.hybrid_search = HybridSearchStrategy()
         self.llm = ChatOpenAI(
             model=settings.llm.model_name,
             temperature=settings.llm.temperature,
@@ -84,23 +86,43 @@ class Workflow:
         )
 
         try:
-            # Use the new search_articles method
-            search_results = self.firecrawl.search_articles(query=state.query, num_results=3)
+            # Use hybrid search for comprehensive results
+            search_results = self.hybrid_search.search(query=state.query, num_results=5)
+            
+            all_content = ""
+            for result in search_results:
+                # For Firecrawl results, try to get more detailed content
+                if result.source.value == "firecrawl":
+                    try:
+                        scraped = self.firecrawl.scrape_company_page(url=result.url)
+                        if scraped and hasattr(scraped, 'markdown'):
+                            all_content += scraped.markdown[:1500] + "\n\n"
+                    except Exception as e:
+                        logger.log_error(e, "page_scraping", url=result.url)
+                        # Fallback to snippet content
+                        all_content += result.content + "\n\n"
+                else:
+                    # For Serper results, use the snippet content
+                    all_content += result.content + "\n\n"
+                    
         except Exception as e:
-            logger.log_error(e, "article_search", query=state.query)
-            # Fallback to original method
-            search_results = self.firecrawl.search_company(query=article_query, num_results=3)
-
-        all_content = ""
-        for result in search_results:
-            url = result.get("url", "")
+            logger.log_error(e, "hybrid_search", query=state.query)
+            # Fallback to original Firecrawl method
             try:
-                scraped = self.firecrawl.scrape_company_page(url=url)
-                if scraped and hasattr(scraped, 'markdown'):
-                    all_content += scraped.markdown[:1500] + "\n\n"
-            except Exception as e:
-                logger.log_error(e, "page_scraping", url=url)
-                continue
+                search_results = self.firecrawl.search_company(query=article_query, num_results=3)
+                all_content = ""
+                for result in search_results:
+                    url = result.get("url", "")
+                    try:
+                        scraped = self.firecrawl.scrape_company_page(url=url)
+                        if scraped and hasattr(scraped, 'markdown'):
+                            all_content += scraped.markdown[:1500] + "\n\n"
+                    except Exception as e:
+                        logger.log_error(e, "page_scraping", url=url)
+                        continue
+            except Exception as fallback_error:
+                logger.log_error(fallback_error, "firecrawl_fallback", query=state.query)
+                all_content = ""
 
         if not all_content.strip():
             logger.warning("No content extracted from search results", query=state.query)
@@ -205,15 +227,30 @@ class Workflow:
 
         for tool_name in tool_names:
             try:
-                # Use optimized search query for tool research
-                query_info = self.query_builder.create_queries(tool_name)
-                search_query = f"{tool_name} official site"
+                # Use hybrid search for comprehensive tool research
+                tool_search_results = self.hybrid_search.search(query=tool_name, num_results=3)
                 
-                tool_search_results = self.firecrawl.search_company(query=search_query, num_results=1)
+                # Convert hybrid search results to expected format
+                converted_results = []
+                for result in tool_search_results:
+                    converted_results.append({
+                        "url": result.url,
+                        "title": result.title,
+                        "markdown": result.content
+                    })
+                
+                tool_search_results = converted_results
                 
             except Exception as e:
-                logger.log_error(e, "tool_search", tool_name=tool_name)
-                continue
+                logger.log_error(e, "hybrid_tool_search", tool_name=tool_name)
+                # Fallback to Firecrawl
+                try:
+                    query_info = self.query_builder.create_queries(tool_name)
+                    search_query = f"{tool_name} official site"
+                    tool_search_results = self.firecrawl.search_company(query=search_query, num_results=1)
+                except Exception as fallback_error:
+                    logger.log_error(fallback_error, "firecrawl_fallback", tool_name=tool_name)
+                    continue
 
             if tool_search_results:
                 result = tool_search_results[0]

@@ -21,14 +21,14 @@ The original implementation had a critical issue with poor query formation:
 Phase 1.1 implements **Dynamic Query Formation** with the following features:
 
 1. **Intelligent Query Classification**
-   - Automatically detects query types (alternatives, comparison, features, pricing, tutorial, integration)
+   - Automatically detects query types (alternatives, comparison, features, pricing, tutorial, integration, general)
    - Identifies tool categories (monitoring, CI/CD, database, cloud, ML, frontend, backend, etc.)
    - Extracts target tools and comparison tools
 
 2. **Specialized Query Templates**
    - Category-specific templates for different tool types
    - Context-aware query optimization
-   - Support for 5+ query types and 10+ tool categories
+   - Support for 7 query types and 11 tool categories
 
 3. **Query Validation and Optimization**
    - Validates query quality and length
@@ -42,7 +42,7 @@ Phase 1.1 implements **Dynamic Query Formation** with the following features:
 
 ## 🏗️ Architecture
 
-### New Directory Structure
+### Current Directory Structure
 
 ```
 src/
@@ -54,34 +54,40 @@ src/
 │   └── schemas.py           # Pydantic models
 ├── services/                # External service integrations
 │   ├── __init__.py
-│   └── firecrawl.py         # Enhanced search service
+│   ├── firecrawl.py         # Enhanced search service
+│   └── serper_search.py     # Serper API integration
 ├── prompts/                 # Prompt management
 │   ├── __init__.py
 │   └── developer_tools.py   # Prompt templates
 ├── search/                  # Search functionality
 │   ├── __init__.py
-│   └── query_builder.py     # Dynamic query formation
+│   └── strategies/
+│       ├── __init__.py
+│       └── hybrid_search.py # Hybrid search strategy (Firecrawl + Serper)
 ├── config/                  # Configuration management
 │   ├── __init__.py
 │   └── settings.py          # Application settings
 ├── utils/                   # Utility functions
 │   ├── __init__.py
+│   ├── query_builder.py     # Dynamic query formation
 │   ├── error_handler.py     # Error handling and retries
 │   └── logger.py            # Structured logging
+├── analysis/                # Analysis utilities
+│   └── __init__.py
 └── __init__.py
 ```
 
 ### Key Components
 
-#### 1. QueryBuilder (`src/search/query_builder.py`)
-- **QueryType Enum**: Defines different query types (alternatives, comparison, features, etc.)
-- **ToolCategory Enum**: Defines tool categories (monitoring, CI/CD, database, etc.)
+#### 1. QueryBuilder (`src/utils/query_builder.py`)
+- **QueryType Enum**: Defines 7 different query types (alternatives, comparison, features, pricing, tutorial, integration, general)
+- **ToolCategory Enum**: Defines 11 tool categories (monitoring, CI/CD, database, cloud, machine_learning, frontend, backend, devops, security, testing, general)
 - **QueryContext**: Contains classification results and context
-- **QueryBuilder Class**: Main class for dynamic query formation
+- **QueryBuilder Class**: Main class for dynamic query formation with pattern-based classification
 
 #### 2. Settings (`src/config/settings.py`)
-- **SearchSettings**: Configuration for search operations
-- **LLMSettings**: Configuration for LLM operations
+- **SearchSettings**: Configuration for search operations (Firecrawl + Serper)
+- **LLMSettings**: Configuration for LLM operations (OpenAI)
 - **CacheSettings**: Configuration for caching (future use)
 - **LoggingSettings**: Configuration for logging
 
@@ -95,6 +101,11 @@ src/
 - **DevToolsLogger**: Centralized logging with context
 - **Performance Tracking**: Operation timing and metrics
 
+#### 5. Hybrid Search (`src/search/strategies/hybrid_search.py`)
+- **SearchResult**: Unified search result structure
+- **SearchSource**: Enum for different search sources
+- **HybridSearchStrategy**: Combines Firecrawl and Serper API
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -107,7 +118,7 @@ src/
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   pip install -e .
+   uv sync
    ```
 
 ### Configuration
@@ -120,24 +131,31 @@ FIRECRAWL_API_KEY=your_firecrawl_api_key
 OPENAI_API_KEY=your_openai_api_key
 
 # Optional
+SERPER_API_KEY=your_serper_api_key
 MAX_SEARCH_RESULTS=5
 SEARCH_TIMEOUT=30
 LLM_MODEL=gpt-4o-mini
 LLM_TEMPERATURE=0.1
 LLM_MAX_TOKENS=2000
 LOG_LEVEL=INFO
+ENABLE_SERPER_FALLBACK=false
 ```
 
 ### Running the Application
 
 #### Interactive Mode
 ```bash
-python main.py
+uv run main.py
 ```
 
 #### Test Suite
 ```bash
-python test_phase1_1.py
+uv run python tests/test_phase1_1.py
+```
+
+#### Demo Script
+```bash
+uv run python tests/demo_phase1_1.py
 ```
 
 ## 📊 Features
@@ -151,6 +169,7 @@ python test_phase1_1.py
 | "jenkins features" | features | ci_cd | jenkins |
 | "postgresql pricing" | pricing | database | postgresql |
 | "react tutorial" | tutorial | frontend | react |
+| "docker integration" | integration | devops | docker |
 
 ### Dynamic Query Templates
 
@@ -172,7 +191,7 @@ The system generates optimized queries based on query type and tool category:
 
 The system provides comprehensive error handling:
 
-1. **Search Failures**: Automatic fallback to simplified queries
+1. **Search Failures**: Automatic fallback to Serper API when configured
 2. **LLM Failures**: Retry with exponential backoff
 3. **Invalid Queries**: Validation and recovery strategies
 4. **Network Issues**: Connection retry mechanisms
@@ -184,7 +203,7 @@ The system provides comprehensive error handling:
 Run the comprehensive test suite:
 
 ```bash
-python test_phase1_1.py
+uv run python tests/test_phase1_1.py
 ```
 
 The test suite covers:
@@ -194,12 +213,20 @@ The test suite covers:
 - Error handling scenarios
 - Configuration validation
 
+### Demo Script
+
+Run the demonstration script to see before/after improvements:
+
+```bash
+uv run python tests/demo_phase1_1.py
+```
+
 ### Manual Testing
 
 Use the interactive application to test queries:
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 Available commands:
@@ -217,10 +244,10 @@ Available commands:
 - Poor results for non-pricing queries
 
 ### After Phase 1.1
-- **90%+ query classification accuracy**
-- **50% reduction in irrelevant search results**
-- **5+ query types supported**
-- **10+ tool categories supported**
+- **7 query types supported** (alternatives, comparison, features, pricing, tutorial, integration, general)
+- **11 tool categories supported** (monitoring, CI/CD, database, cloud, ML, frontend, backend, devops, security, testing, general)
+- **Pattern-based query classification** for accurate type detection
+- **Hybrid search strategy** combining Firecrawl and Serper API
 - **Comprehensive error handling and recovery**
 - **Structured logging for debugging**
 
@@ -228,8 +255,8 @@ Available commands:
 
 Phase 1.1 is designed to be compatible with future phases:
 
-### Phase 1.2: Serper Integration
-- The query builder is ready for Serper API integration
+### Phase 1.2: Enhanced Serper Integration
+- The query builder is ready for enhanced Serper API integration
 - Configuration settings already include Serper API settings
 - Error handling supports multiple search providers
 
@@ -272,7 +299,7 @@ export LOG_LEVEL=DEBUG
 
 Use query analysis:
 ```bash
-python main.py
+uv run main.py
 # Enter: analyze
 # Enter your query for detailed analysis
 ```
@@ -282,7 +309,7 @@ python main.py
 ### QueryBuilder
 
 ```python
-from src.search.query_builder import QueryBuilder
+from src.utils.query_builder import QueryBuilder
 
 builder = QueryBuilder()
 
@@ -339,4 +366,25 @@ This project is part of the Developer Tools Agent implementation.
 ---
 
 **Phase 1.1 Status**: ✅ Complete  
-**Next Phase**: Phase 1.2 - Serper Integration
+**Next Phase**: Phase 1.2 - Enhanced Serper Integration
+
+## 🔍 Current Implementation Status
+
+### ✅ Fully Implemented
+- Dynamic Query Builder with 7 query types and 11 tool categories
+- Pattern-based query classification system
+- Hybrid search strategy (Firecrawl + Serper fallback)
+- Comprehensive error handling and retry mechanisms
+- Structured logging system
+- Configuration management with environment variables
+- Main workflow with LangGraph integration
+- Test suite and demonstration scripts
+
+### 🔄 Partially Implemented
+- Serper API integration (configured but optional fallback)
+- Caching system (configured but not yet active)
+
+### 📋 Ready for Future Phases
+- Query classification foundation for enhanced tool discovery
+- Error handling infrastructure for additional data sources
+- Logging system for performance monitoring and optimization

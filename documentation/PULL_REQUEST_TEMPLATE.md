@@ -29,7 +29,7 @@ This PR implements **Phase 1.1: Dynamic Query Formation** to resolve the poor qu
 
 ## 📁 Files Changed
 ### New Files (15)
-- `src/search/query_builder.py` - Core query formation logic
+- `src/utils/query_builder.py` - Core query formation logic
 - `src/config/settings.py` - Configuration management
 - `src/utils/error_handler.py` - Error handling and retries
 - `src/utils/logger.py` - Structured logging
@@ -53,7 +53,7 @@ This PR implements **Phase 1.1: Dynamic Query Formation** to resolve the poor qu
 
 ## 🚀 Usage Examples
 ```python
-from src.search.query_builder import QueryBuilder
+from src.utils.query_builder import QueryBuilder
 from src.config.settings import settings
 
 # Create optimized queries

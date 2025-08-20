@@ -13,3 +13,7 @@ wheels/
 
 # Ignore message history and data directory
 /data/message_history.json
+
+# Ignore test files
+tests/
+
