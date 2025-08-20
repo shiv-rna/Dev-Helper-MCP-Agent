@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 from firecrawl import FirecrawlApp, ScrapeOptions
 from dotenv import load_dotenv
 
-from ..search.query_builder import QueryBuilder
+from ..utils.query_builder import QueryBuilder
 from ..config.settings import settings
 from ..utils.error_handler import handle_search_errors, SearchError
 from ..utils.logger import logger

@@ -11,7 +11,7 @@ import json
 from dotenv import load_dotenv
 from datetime import datetime
 from src.workflows import Workflow
-from src.search.query_builder import QueryBuilder
+from src.utils.query_builder import QueryBuilder
 from src.config.settings import settings
 from src.utils.logger import logger
 

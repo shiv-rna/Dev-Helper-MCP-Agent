@@ -50,8 +50,10 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Project specific
+# Project specific - exclude output files but keep important text files
+developer_tools_output_*.txt
+*.log
 *.txt
 !requirements.txt
 !README.txt
-developer_tools_output_*.txt
+!GIT_CHEATSHEET.md

@@ -29,7 +29,7 @@ This PR implements **Phase 1.1: Dynamic Query Formation** to resolve the poor qu
 
 ## 📁 Files Changed
 ### New Files (15)
-- `src/search/query_builder.py` - Core query formation logic
+- `src/utils/query_builder.py` - Core query formation logic
 - `src/config/settings.py` - Configuration management
 - `src/utils/error_handler.py` - Error handling and retries
 - `src/utils/logger.py` - Structured logging
@@ -47,13 +47,13 @@ This PR implements **Phase 1.1: Dynamic Query Formation** to resolve the poor qu
 - Old structure files moved to new modular organization
 
 ## 🔮 Future Compatibility
-- ✅ Ready for Phase 1.2 (Google Search Integration)
-- ✅ Compatible with Phase 2 (Enhanced Tool Discovery)
-- ✅ Foundation for Phase 3 (Enhanced Prompts)
+- ✅ Ready for Phase 1.2 (Serper Integration)
+- ✅ Compatible with Phase 2.1 (GitHub Integration)
+- ✅ Foundation for Phase 3.1 (LangSmith Integration)
 
 ## 🚀 Usage Examples
 ```python
-from src.search.query_builder import QueryBuilder
+from src.utils.query_builder import QueryBuilder
 from src.config.settings import settings
 
 # Create optimized queries
@@ -90,6 +90,6 @@ queries = builder.create_queries("mlflow alternatives")
 This implementation successfully addresses the core query formation issue and provides a solid foundation for future phases. The modular architecture ensures maintainability and extensibility.
 
 **Status**: ✅ Complete  
-**Next Phase**: Phase 1.2 - Google Search Integration  
+**Next Phase**: Phase 1.2 - Serper Integration  
 **Compatibility**: ✅ Backward compatible  
 **Future Ready**: ✅ Yes 
